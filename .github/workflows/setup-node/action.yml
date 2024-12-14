@@ -1,23 +1,29 @@
-# File: .github/workflows/setup-node/action.yml
-name: setup-node
-description: "Setup Node.js ⚙️ - Cache dependencies ⚡ - Install dependencies 🔧"
-runs:
-  using: "composite"
-  steps:
-    - name: Setup Node.js ⚙️
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+name: Setup Node.js with Next.js
 
-    - name: Cache dependencies ⚡
-      id: cache_dependencies
-      uses: actions/cache@v3
-      with:
-        path: node_modules
-        key: node-modules-${{ hashFiles('package-lock.json') }}
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-    - name: Install dependencies 🔧
-      shell: bash
-      if: steps.cache_dependencies.outputs.cache-hit != 'true'
-      working-directory: personalwebsite
-      run: npm ci
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: personalwebsite
+        run: npm install
+
+      - name: Build project
+        working-directory: personalwebsite
+        run: npx next build
